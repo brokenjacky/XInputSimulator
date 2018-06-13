@@ -80,6 +80,12 @@ int XInputSimulator::charToKeyCode(char key_char)
     return implementation->charToKeyCode(key_char);
 }
 
+
+int XInputSimulator::stringToKeyCode(std::string key_char)
+{
+    return implementation->stringToKeyCode(key_char);
+}
+
 void XInputSimulator::keySequence(const std::string &sequence)
 {
     implementation->keySequence(sequence);

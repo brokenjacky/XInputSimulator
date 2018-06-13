@@ -18,11 +18,13 @@
 
 #ifdef _WIN32
 
+#include <Windows.h>
 #include "xinputsimulatorimplwin.h"
 #include "notimplementedexception.h"
+#include "xinputsimulatorkeymapwin.h"
 #include <iostream>
 
-#include <Windows.h>
+
 
 #define MOUSEEVENTF_HWHEEL 0x01000
 
@@ -38,6 +40,11 @@ void XInputSimulatorImplWin::initCurrentMousePosition()
     {
         this->currentX = p.x;
         this->currentY = p.y;
+    }
+
+    for (const auto & t:keys)
+    {
+        name_to_code_table.insert(name_to_code_table_t::value_type(std::get<0>(t), std::get<1>(t)));
     }
 }
 
@@ -136,26 +143,77 @@ void XInputSimulatorImplWin::mouseScrollY(int length)
 
 void XInputSimulatorImplWin::keyDown(int key)
 {
-    throw NotImplementedException();
+    INPUT input;
+    input.type = INPUT_KEYBOARD;
+    input.ki.wVk = key;
+    input.ki.wScan = MapVirtualKey(input.ki.wVk, 0);
+    input.ki.dwFlags = 0;
+
+    input.ki.time = 0;
+    input.ki.dwExtraInfo = ::GetMessageExtraInfo();
+    SendInput(1, &input, sizeof(INPUT));
 }
 
 void XInputSimulatorImplWin::keyUp(int key)
 {
-    throw NotImplementedException();
+    INPUT input;
+    input.type = INPUT_KEYBOARD;
+    input.ki.wVk = key;
+    input.ki.wScan = MapVirtualKey(input.ki.wVk, 0);
+    input.ki.dwFlags = KEYEVENTF_KEYUP;
+
+    input.ki.time = 0;
+    input.ki.dwExtraInfo = ::GetMessageExtraInfo();
+    SendInput(1, &input, sizeof(INPUT));
 }
 
 void XInputSimulatorImplWin::keyClick(int key)
 {
-    throw NotImplementedException();
+    this->keyDown(key);
+    this->keyUp(key);
 }
 
 int XInputSimulatorImplWin::charToKeyCode(char key_char)
 {
-    throw NotImplementedException();
+//    throw NotImplementedException();
+    return 0;
 }
+
+int XInputSimulatorImplWin::stringToKeyCode(std::string str)
+{
+    name_to_code_table_t::iterator it = name_to_code_table.find(str);
+    if (it != name_to_code_table.end())
+    {
+        return it->second;
+    }
+    return 0;
+}
+
 void XInputSimulatorImplWin::keySequence(const std::string &sequence)
 {
-    throw NotImplementedException();
+    std::cout << "key seq: " << sequence << std::endl;
+    char t[2];
+    t[1] = 0;
+    for (const char c : sequence) {
+        t[0] = tolower(c);
+    //    std::cout << "cahr: " << c << std::endl;
+        int keyCode = this->stringToKeyCode(t);
+    //    std::cout << "key code: " << keyCode << std::endl;
+
+        if (isupper(c)) {
+        //    std::cout << "upper " << c << std::endl;
+
+            this->keyDown(VK_LSHIFT);
+            this->keyClick(keyCode);
+            this->keyUp(VK_LSHIFT);
+        }
+        else {
+            this->keyClick(keyCode);
+        }
+
+
+        std::cout << std::endl;
+    }
 }
 
 #endif //win

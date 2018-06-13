@@ -21,12 +21,16 @@
 #define XINPUTSIMULATORIMPLWIN_H
 
 #include "xinputsimulatorimpl.h"
+#include <map>
+#include <string>
 
+typedef std::map<std::string, const int> name_to_code_table_t;
 class XInputSimulatorImplWin: public XInputSimulatorImpl
 {
 private:
     int currentX;
     int currentY;
+    name_to_code_table_t name_to_code_table;
 
     void initCurrentMousePosition();
 
@@ -47,6 +51,7 @@ public:
     virtual void keyClick(int key) override;
 
     virtual int charToKeyCode(char key_char) override;
+    virtual int stringToKeyCode(std::string str) override;
     virtual void keySequence(const std::string &sequence) override;
 };
 

@@ -40,6 +40,7 @@ public:
     virtual void keyClick(int key) = 0;
 
     virtual int charToKeyCode(char key_char) = 0;
+    virtual int stringToKeyCode(std::string str) = 0;
     virtual void keySequence(const std::string &sequence) = 0;
 
 };
